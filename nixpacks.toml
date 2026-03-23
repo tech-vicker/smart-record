@@ -1,0 +1,5 @@
+[phases.build]
+nixPkgs = ['php83']
+
+[phases.setup]
+nixPkgs = ['php83', 'nodejs']
