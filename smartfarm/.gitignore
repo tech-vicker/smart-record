@@ -1,0 +1,84 @@
+# SmartFarm .gitignore
+
+# Database files
+*.sqlite
+*.sqlite3
+*.db
+db/database.sqlite
+
+# Logs
+*.log
+logs/
+error.log
+access.log
+
+# Environment files
+.env
+.env.local
+.env.production
+config.php
+production-config.php
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.sublime-*
+.atom/
+
+# Deployment files
+deployment/
+deploy/
+*.tar.gz
+*.zip
+
+# Node modules (if using npm)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Composer (if using composer)
+vendor/
+composer.lock
+
+# Backup files
+backups/
+*.backup
+*.sql
+
+# Cache
+cache/
+.tmp/
+
+# SSL certificates
+*.pem
+*.key
+*.crt
+ssl/
+
+# Apache/Nginx logs
+/var/log/
+
+# Docker
+.dockerignore
+
+# Local development
+.local/
+local.*
