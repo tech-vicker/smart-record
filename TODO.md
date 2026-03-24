@@ -1,26 +1,28 @@
-# SmartFarm Deployment - Detailed Steps
+# SmartFarm Deployment Fix - Progress Tracker
 
-## Current Status
-✅ Local server tested (localhost:3000)
-✅ Git repo initialized
-✅ No demo data found (dynamic)
+## ✅ Completed:
+- [x] Created `deploy.bat` - Run this first!
 
-## Remaining Steps
+## 🔄 In Progress:
+- [ ] Add demo users + error handling
 
-### Step 1: [x] Step 1 from plan - Edit files (no demo data found, confirmed dynamic)
-### Step 2: [x] Fix git repo to be inside smartfarm/ - Working
-### Step 3: [x] Git add all files in smartfarm/
-### Step 4: [x] Initial git commit - Done (24 files committed)
-### Step 5: [x] Create production deployment package (smartfarm-production.zip created ~52KB, note: includes empty db as SQLite auto-creates tables)
-### Step 6: [x] Test free hosting upload - Ready with FREE_HOSTING.md guide (InfinityFree recommended)
-### Step 7: [x] Update deployment guides - Complete in README.md & FREE_HOSTING.md
-### Step 8: [x] Mark complete
+## ⏳ Pending Steps:
+- [ ] Step 2: Edit db.php (demo users)
+- [ ] Step 3: Update login/register.php (errors + auto-login)
+- [ ] Step 4: Run `deploy.bat` 
+- [ ] Step 5: ZIP deployment contents 
+- [ ] Step 6: Upload to InfinityFree public_html
+- [ ] Step 7: Test demo login:
+  | User | Password |
+  |------|----------|
+  | **admin@smartfarm.com** | **admin123** |
+  | **test@smartfarm.com** | **test123** |
 
-## Deployment Complete ✅
+## 📋 Quick Deploy Commands:
+```
+# Windows (in project root)
+deploy.bat
+# Then ZIP deployment/* contents and upload
+```
 
-**Run locally:** `php -S localhost:3000` then visit http://localhost:3000
-
-**Deploy:** Upload smartfarm-production.zip to free host (InfinityFree), extract to public_html, create empty db/database.sqlite if needed.
-
-System fully production ready, git committed, no demo data.
-
+**After upload: Visit yoursite.infinityfree.net → Login with demo creds → Dashboard works!**

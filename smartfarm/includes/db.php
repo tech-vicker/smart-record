@@ -1,5 +1,14 @@
 <?php
-$db = new SQLite3(__DIR__ . '/../db/database.sqlite');
+$db_path = __DIR__ . '/../db/database.sqlite';
+if (!file_exists(dirname($db_path))) {
+    mkdir(dirname($db_path), 0755, true);
+}
+if (!file_exists($db_path)) {
+    touch($db_path);
+    chmod($db_path, 0644);
+}
+$db = new SQLite3($db_path);
+
 
 // Enable performance optimizations
 $db->exec('PRAGMA journal_mode = WAL');
@@ -106,6 +115,50 @@ while ($user = $users->fetchArray(SQLITE3_ASSOC)) {
     $stmt->bindValue(':location', 'Not specified', SQLITE3_TEXT);
     $stmt->execute();
 }
+
+// ===== PRODUCTION DEMO USERS (SAFE - Won't duplicate) =====
+echo "Checking/creating demo users...\n"; // Remove in prod if verbose
+
+// Demo Admin
+$stmt = $db->prepare("SELECT id FROM users WHERE email = :email");
+$stmt->bindValue(':email', 'admin@smartfarm.com', SQLITE3_TEXT);
+$result = $stmt->execute();
+if (!$result->fetchArray()) {
+    $hashed_admin = password_hash('admin123', PASSWORD_DEFAULT);
+    $stmt = $db->prepare("INSERT INTO users (name, email, password, farm_name) VALUES (:name, :email, :password, :farm_name)");
+    $stmt->bindValue(':name', 'Admin User', SQLITE3_TEXT);
+    $stmt->bindValue(':email', 'admin@smartfarm.com', SQLITE3_TEXT);
+    $stmt->bindValue(':password', $hashed_admin, SQLITE3_TEXT);
+    $stmt->bindValue(':farm_name', 'Demo Farm HQ', SQLITE3_TEXT);
+    $stmt->execute();
+    echo "✓ Admin demo created\n";
+}
+
+// Demo Test User
+$stmt = $db->prepare("SELECT id FROM users WHERE email = :email");
+$stmt->bindValue(':email', 'test@smartfarm.com', SQLITE3_TEXT);
+$result = $stmt->execute();
+if (!$result->fetchArray()) {
+    $hashed_test = password_hash('test123', PASSWORD_DEFAULT);
+    $stmt = $db->prepare("INSERT INTO users (name, email, password, farm_name) VALUES (:name, :email, :password, :farm_name)");
+    $stmt->bindValue(':name', 'Test Farmer', SQLITE3_TEXT);
+    $stmt->bindValue(':email', 'test@smartfarm.com', SQLITE3_TEXT);
+    $stmt->bindValue(':password', $hashed_test, SQLITE3_TEXT);
+    $stmt->bindValue(':farm_name', 'Test Acres Farm', SQLITE3_TEXT);
+    $stmt->execute();
+    echo "✓ Test demo created\n";
+}
+
+// Create default farms for demos
+$demo_users = $db->query("SELECT id FROM users WHERE email IN ('admin@smartfarm.com', 'test@smartfarm.com') AND id NOT IN (SELECT DISTINCT user_id FROM farms)");
+while ($user = $demo_users->fetchArray(SQLITE3_ASSOC)) {
+    $stmt = $db->prepare("INSERT INTO farms (user_id, name, location) VALUES (:user_id, :name, :location)");
+    $stmt->bindValue(':user_id', $user['id'], SQLITE3_INTEGER);
+    $stmt->bindValue(':name', 'Demo Farm', SQLITE3_TEXT);
+    $stmt->bindValue(':location', 'Demo Location', SQLITE3_TEXT);
+    $stmt->execute();
+}
+echo "Demo setup complete!\n";
 
 // Add farm_id columns to existing tables if they don't exist
 $tables_to_update = [
