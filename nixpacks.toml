@@ -1,5 +1,10 @@
 [phases.build]
-nixPkgs = ['php83']
+nixPkgs = ['php']
 
 [phases.setup]
-nixPkgs = ['php83', 'nodejs']
+nixPkgs = ['php', 'nodejs']
+
+[phases.install]
+nixPkgs = ['php', 'nodejs']
+aptPkgs = ['php8.1', 'php8.1-sqlite3', 'libsqlite3-dev']
+
