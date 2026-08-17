@@ -1,12 +1,12 @@
 # SmartFarm - Farm Record Keeping System
 
-## 🌾 Professional Farm Management System
+##  Professional Farm Management System
 
 A modern, responsive web application for managing agricultural operations with multi-farm support, analytics, and advanced features.
 
-## ✨ Features
+##  Features
 
-### 🎯 Core Features
+###  Core Features
 - **Multi-Farm Management** - Manage multiple farms from one account
 - **Livestock Tracking** - Monitor animal health, count, and value
 - **Crop Management** - Track planting, growth, and harvest cycles
@@ -15,7 +15,7 @@ A modern, responsive web application for managing agricultural operations with m
 - **Calendar View** - Visual task scheduling and planning
 - **Data Export** - CSV export for reports and analysis
 
-### 🎨 Advanced Features
+###  Advanced Features
 - **Dark Mode** - Toggle between light and dark themes
 - **Real-time Form Validation** - Enhanced user experience
 - **Loading Animations** - Professional loading states
@@ -23,7 +23,7 @@ A modern, responsive web application for managing agricultural operations with m
 - **Performance Optimized** - Fast database queries with indexes
 - **Secure Authentication** - Password hashing and session management
 
-## 🚀 Quick Start
+##  Quick Start
 
 ### Local Development
 ```bash
@@ -164,7 +164,7 @@ DB_PATH=/path/to/secure/database.sqlite
 - ✅ CRUD operations
 - ✅ Responsive design
 
-## 🤝 Contributing
+##  Contributing
 
 1. Fork the repository
 2. Create feature branch (`git checkout -b feature/AmazingFeature`)
@@ -172,21 +172,12 @@ DB_PATH=/path/to/secure/database.sqlite
 4. Push to branch (`git push origin feature/AmazingFeature`)
 5. Open Pull Request
 
-## 📄 License
+\
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🆘 Support
-
-For support and questions:
-- 📧 Email: support@smartfarm.com
-- 📱 Phone: +1-234-567-8900
-- 💬 Live Chat: Available on website
-
-## 🌟 Star History
+##  Star History
 
 [![Star History Chart](https://api.star-history.com/svg?repos=username/smartfarm&type=Date)](https://star-history.com/#username/smartfarm&Date)
 
 ---
 
-**Made with ❤️ for farmers worldwide** 🌾
+**Made with love for farmers worldwide** 
