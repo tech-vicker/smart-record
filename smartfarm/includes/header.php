@@ -1,6 +1,13 @@
 <?php
 session_start();
-require_once 'db.php';
+require_once 'config/Config.php';
+require_once 'config/Logger.php';
+require_once 'config/Security.php';
+require_once 'config/Database.php';
+require_once 'includes/auth.php';
+
+$logger = new Logger();
+$db = Database::getInstance();
 
 function requireAuth() {
     if (!isset($_SESSION['user_id'])) {
@@ -14,58 +21,68 @@ function isLoggedIn() {
 }
 
 function getCurrentUser($db) {
-    if (!isset($_SESSION['user_id'])) return ['name' => 'User', 'farm_name' => 'Farm', 'email' => ''];
-    $stmt = $db->prepare("SELECT * FROM users WHERE id = :id");
-    $stmt->bindValue(':id', $_SESSION['user_id'], SQLITE3_INTEGER);
-    $result = $stmt->execute();
-    $user = $result->fetchArray(SQLITE3_ASSOC);
-    return $user ?: ['name' => 'User', 'farm_name' => 'Farm', 'email' => ''];
-}
-
-function getUserId() {
-    return $_SESSION['user_id'] ?? 0;
+    if (!isset($_SESSION['user_id'])) {
+        return ['name' => 'User', 'farm_name' => 'Farm', 'email' => ''];
+    }
+    
+    try {
+        $stmt = $db->prepare("SELECT id, name, email, farm_name FROM users WHERE id = :id");
+        $stmt->bindValue(':id', $_SESSION['user_id'], SQLITE3_INTEGER);
+        $result = $stmt->execute();
+        $user = $result->fetchArray(SQLITE3_ASSOC);
+        return $user ?: ['name' => 'User', 'farm_name' => 'Farm', 'email' => ''];
+    } catch (Exception $e) {
+        $logger->error('Error fetching current user', ['error' => $e->getMessage()]);
+        return ['name' => 'User', 'farm_name' => 'Farm', 'email' => ''];
+    }
 }
 
 function getCurrentFarm($db) {
     if (!isset($_SESSION['user_id'])) return null;
     
-    // Check if a farm is selected in session
-    if (isset($_SESSION['farm_id'])) {
-        $stmt = $db->prepare("SELECT * FROM farms WHERE id = :id AND user_id = :user_id");
-        $stmt->bindValue(':id', $_SESSION['farm_id'], SQLITE3_INTEGER);
+    try {
+        if (isset($_SESSION['farm_id'])) {
+            $stmt = $db->prepare("SELECT * FROM farms WHERE id = :id AND user_id = :user_id");
+            $stmt->bindValue(':id', $_SESSION['farm_id'], SQLITE3_INTEGER);
+            $stmt->bindValue(':user_id', $_SESSION['user_id'], SQLITE3_INTEGER);
+            $result = $stmt->execute();
+            $farm = $result->fetchArray(SQLITE3_ASSOC);
+            if ($farm) return $farm;
+        }
+        
+        $stmt = $db->prepare("SELECT * FROM farms WHERE user_id = :user_id LIMIT 1");
         $stmt->bindValue(':user_id', $_SESSION['user_id'], SQLITE3_INTEGER);
         $result = $stmt->execute();
         $farm = $result->fetchArray(SQLITE3_ASSOC);
-        if ($farm) return $farm;
+        
+        if ($farm) {
+            $_SESSION['farm_id'] = $farm['id'];
+            return $farm;
+        }
+        return null;
+    } catch (Exception $e) {
+        $logger->error('Error fetching current farm', ['error' => $e->getMessage()]);
+        return null;
     }
-    
-    // Get first farm for user
-    $stmt = $db->prepare("SELECT * FROM farms WHERE user_id = :user_id LIMIT 1");
-    $stmt->bindValue(':user_id', $_SESSION['user_id'], SQLITE3_INTEGER);
-    $result = $stmt->execute();
-    $farm = $result->fetchArray(SQLITE3_ASSOC);
-    
-    if ($farm) {
-        $_SESSION['farm_id'] = $farm['id'];
-        return $farm;
-    }
-    
-    return null;
 }
 
 function getFarms($db) {
     if (!isset($_SESSION['user_id'])) return [];
     
-    $stmt = $db->prepare("SELECT * FROM farms WHERE user_id = :user_id ORDER BY name");
-    $stmt->bindValue(':user_id', $_SESSION['user_id'], SQLITE3_INTEGER);
-    $result = $stmt->execute();
-    
-    $farms = [];
-    while ($farm = $result->fetchArray(SQLITE3_ASSOC)) {
-        $farms[] = $farm;
+    try {
+        $stmt = $db->prepare("SELECT * FROM farms WHERE user_id = :user_id ORDER BY name");
+        $stmt->bindValue(':user_id', $_SESSION['user_id'], SQLITE3_INTEGER);
+        $result = $stmt->execute();
+        
+        $farms = [];
+        while ($farm = $result->fetchArray(SQLITE3_ASSOC)) {
+            $farms[] = $farm;
+        }
+        return $farms;
+    } catch (Exception $e) {
+        $logger->error('Error fetching farms', ['error' => $e->getMessage()]);
+        return [];
     }
-    
-    return $farms;
 }
 ?>
 <!DOCTYPE html>
@@ -81,12 +98,13 @@ function getFarms($db) {
         $user = getCurrentUser($db);
         $current_farm = getCurrentFarm($db);
         $farms = getFarms($db);
+        $csrfToken = Security::generateCSRFToken();
     ?>
     <nav class="navbar">
         <div class="nav-brand">
             <span>🌾 SmartFarm</span>
             <?php if ($current_farm): ?>
-                <small><?php echo htmlspecialchars($current_farm['name']); ?></small>
+                <small><?php echo Security::escape($current_farm['name']); ?></small>
             <?php endif; ?>
         </div>
         <div style="display: flex; align-items: center; gap: 1rem;">
@@ -94,7 +112,7 @@ function getFarms($db) {
             <select class="farm-selector" onchange="switchFarm(this.value)">
                 <?php foreach ($farms as $farm): ?>
                     <option value="<?php echo $farm['id']; ?>" <?php echo ($current_farm && $current_farm['id'] == $farm['id']) ? 'selected' : ''; ?>>
-                        <?php echo htmlspecialchars($farm['name']); ?>
+                        <?php echo Security::escape($farm['name']); ?>
                     </option>
                 <?php endforeach; ?>
                 <option value="manage">+ Manage Farms</option>
